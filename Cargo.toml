@@ -1,6 +1,6 @@
 [package]
 name = "interva"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["misaka10987 <misaka10987@outlook.com>"]
 description = "A feature-rich crate for handling intervals."
@@ -13,6 +13,3 @@ license = "MIT"
 
 [dependencies]
 serde = { version = "1.0.203", features = ["derive"], optional = true }
-
-[features]
-default = ["serde"]
