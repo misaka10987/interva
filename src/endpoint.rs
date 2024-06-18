@@ -2,6 +2,16 @@
 mod _endpoint {
     use serde::{Deserialize, Serialize};
 
+    /// Defines an endpoint of an interval.
+    ///
+    /// `interva` performs a trick here that it handles `LOpen(x)` as `x`+*Infinitesimal* and `ROpen(x)` as `x`-*Infinitesimal*.
+    ///
+    /// `Endpoint<T>` implements `PartialOrd` as long as `T` implements it, making the following guarantees:
+    /// - for `x:T`, `NegInf` < `ROpen(x)` < `Closed(x)` < `LOpen(x)` < `PosInf`
+    /// - for `x:T`, `y:T` and `x<y`, `Endpoint<T>` with value `x` is always less than `Endpoint<T>` with value `y`, regardless of `LOpen`, `ROpen` or `Closed`
+    /// - `PosInf == Posinf`, `NegInf == NegInf`
+    ///
+    /// It can be proved from above that `Endpoint<T>` is `Ord` if `T` is.
     #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
     pub enum Endpoint<T> {
         /// []
@@ -17,6 +27,16 @@ mod _endpoint {
 
 #[cfg(not(feature = "serde"))]
 mod _endpoint {
+    /// Defines an endpoint of an interval.
+    ///
+    /// `interva` performs a trick here that it handles `LOpen(x)` as `x`+*Infinitesimal* and `ROpen(x)` as `x`-*Infinitesimal*.
+    ///
+    /// `Endpoint<T>` implements `PartialOrd` as long as `T` implements it, making the following guarantees:
+    /// - for `x:T`, `NegInf` < `ROpen(x)` < `Closed(x)` < `LOpen(x)` < `PosInf`
+    /// - for `x:T`, `y:T` and `x<y`, `Endpoint<T>` with value `x` is always less than `Endpoint<T>` with value `y`, regardless of `LOpen`, `ROpen` or `Closed`
+    /// - `PosInf == Posinf`, `NegInf == NegInf`
+    ///
+    /// It can be proved from above that `Endpoint<T>` is `Ord` if `T` is.
     #[derive(Clone, Copy, PartialEq, Eq)]
     pub enum Endpoint<T> {
         /// []

@@ -1,6 +1,6 @@
 [package]
 name = "interva"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["misaka10987 <misaka10987@outlook.com>"]
 description = "A feature-rich crate for handling intervals."

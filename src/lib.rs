@@ -1,8 +1,11 @@
 pub mod endpoint;
 
-use std::{cmp::Ordering, ops::Mul};
+use std::{
+    cmp::Ordering,
+    ops::{Div, Mul},
+};
 
-use endpoint::Endpoint;
+pub use endpoint::Endpoint;
 
 #[cfg(feature = "serde")]
 mod _interval {
@@ -21,8 +24,25 @@ mod _interval {
 mod _interval {
     use crate::endpoint::Endpoint;
 
+    /// Defines an interval. The behaviour is undefined unless `self.left<=self.right`(see [Endpoint] for the partial order definition).
+    ///
+    /// `/` operator judges whether an element is in the interval. i.e. for `x:T` and `i:Interval<T>`, `i/x` is true iff `x` in `i`.
+    ///
+    /// `<=` and `>=`, `<` and `>` operators judge the subset and proper-subset relations respectively.
+    ///
+    /// `*` operator returns the intersection of two intervals.
+    ///
+    /// # Examples
+    /// ```
+    /// use interva::Interval;
+    /// assert!(Interval::closed(1, 2) > Interval::open(1, 2));
+    /// assert!(Interval::<i32>::EMPTY <= Interval::EMPTY); // `i32`'s here just because type inference failed
+    /// assert!(Interval::closed(1, 3) * Interval::open(2, 4) == Interval::lorc(2, 3));
+    /// assert!(Interval::closed(1.5, 1.7) / 1.7);
+    /// assert!(!(Interval::open(1.5, 1.7) / 1.7));
+    /// ```
     #[derive(Clone, Copy, PartialEq, Eq)]
-    pub struct Interval<T> {
+    pub struct Interval<T = f64> {
         pub left: Endpoint<T>,
         pub right: Endpoint<T>,
     }
@@ -97,16 +117,6 @@ where
     }
 }
 
-impl<T> Interval<T>
-where
-    Endpoint<T>: PartialOrd,
-{
-    pub fn contain(&self, value: T) -> bool {
-        let v = Endpoint::Closed(value);
-        v >= self.left && v <= self.right
-    }
-}
-
 #[rustfmt::skip]
 impl<T: Eq> PartialOrd for Interval<T>
 where
@@ -121,6 +131,30 @@ where
     }
 }
 
+impl<T> Div<T> for &Interval<T>
+where
+    Endpoint<T>: PartialOrd,
+{
+    type Output = bool;
+
+    fn div(self, rhs: T) -> Self::Output {
+        let v = Endpoint::Closed(rhs);
+        v >= self.left && v <= self.right
+    }
+}
+
+impl<T> Div<T> for Interval<T>
+where
+    Endpoint<T>: PartialOrd,
+{
+    type Output = bool;
+
+    fn div(self, rhs: T) -> Self::Output {
+        let v = Endpoint::Closed(rhs);
+        v >= self.left && v <= self.right
+    }
+}
+
 impl<T> Mul for Interval<T>
 where
     Endpoint<T>: Ord,
@@ -129,17 +163,5 @@ where
 
     fn mul(self, rhs: Self) -> Self::Output {
         Self::new(self.left.max(rhs.left), self.right.min(rhs.right))
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::Interval;
-
-    #[test]
-    fn interval_ops() {
-        assert!(Interval::closed(1, 2) > Interval::open(1, 2));
-        assert!(Interval::closed(1, 3) * Interval::open(2, 4) == Interval::lorc(2, 3));
-        assert!(Interval::EMPTY >= Interval::open(1, 1));
     }
 }
