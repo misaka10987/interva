@@ -155,6 +155,7 @@ where
     }
 }
 
+#[rustfmt::skip]
 impl<T> Mul for Interval<T>
 where
     Endpoint<T>: Ord,
@@ -162,6 +163,7 @@ where
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        Self::new(self.left.max(rhs.left), self.right.min(rhs.right))
+        let res = Self::new(self.left.max(rhs.left), self.right.min(rhs.right));
+        if res.is_empty() { Self::EMPTY } else { res }
     }
 }
